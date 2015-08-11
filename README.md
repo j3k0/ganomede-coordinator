@@ -19,6 +19,7 @@ Configuration
  * `REDIS_AUTH_PORT_6379_TCP_ADDR` - IP of the AuthDB redis
  * `REDIS_AUTH_PORT_6379_TCP_PORT` - Port of the AuthDB redis
  * `GAME_SERVERS_URL` - Comma separated list of servers
+ * `API_SECRET` - Give access to private APIs
 
 API
 ---
@@ -168,4 +169,37 @@ Only when status set to "active", the game will appear in the games collection o
 Until then, it's waiting for activation... Hopefully it should be listed in the players' invitations.
 
 Inactive games will have an expiry date of 1 month.
+
+# Changes [/coordinator/v1/gameover]
+
+## Listen for gameover [GET] - private
+
+    + Parameters
+        + secret (string) ... API secret code opening access to this call
+        + since (string) ... Last sequence number known of
+
+### response [200] OK
+
+    {
+        "result": [{
+            "seq":26,
+            "id": "1234",
+            "type": "triominos/v1",
+            "players": [ "some_username", "other_username" ],
+            "status": "gameover",
+            "gameOverData": { ... }
+        }, {
+            "seq":33,
+            "id": "1236",
+            "type": "triominos/v1",
+            "players": [ "some_username", "other_username" ],
+            "status": "gameover",
+            "gameOverData": { ... }
+        }],
+        "last_seq":39
+    }
+
+ * `seq`: The update sequence number.
+ * `id`: The document ID.
+ * `changes`: An array of fields, which by default includes the document’s revision ID, but can also include information about document conflicts and other things.
 
