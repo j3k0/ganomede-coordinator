@@ -16,6 +16,15 @@ class DB
 
   @views: null
 
+  pollChanges: (since, callback) ->
+    @db.changes {
+      feed: "longpoll"
+      since: since
+      timeout: 29000
+    }, callback
+
+  fetch: (ids, callback) -> @db.fetch {keys:ids}, {}, callback
+
   # Gets doc by its id.
   get: (id, callback) ->
     @db.get id, (err, doc, headers) ->
