@@ -42,8 +42,19 @@ class CoordinatorApi
         req.params.user = account
         next()
 
+    # Check the API secret key validity
+    secretMiddleware = (req, res, next) =>
+      if req.params.secret != config.apiSecret
+        err = new restify.UnauthorizedError('not authorized')
+        return sendError(err, next)
+      delete req.params.secret
+      next()
+
     # Populates req.params.game with the GameModel of ID given by req.params.id
     gameMiddleware = (req, res, next) =>
+      if !req.params.id
+        err = new restify.InvalidContentError('invalid content')
+        return sendError(err, next)
       game = @games.newModel id:req.params.id
       game.fetch (err) ->
         if err
@@ -148,10 +159,30 @@ class CoordinatorApi
     postGameOver = (req, res, next) =>
       username = req.params.user.username
       game = req.params.game
+      if !req.body?.gameOverData
+        err = new restify.InvalidContentError(
+          'invalid content: missing gameOverData')
+        return sendError err, next
       game.gameOverData = req.body.gameOverData
       game.status = "gameover"
       game.viewers = game.players
       next()
+
+    sendJson = (data, res, next) ->
+      res.json data
+      next()
+
+    isOver = (doc) -> doc.status == "gameover"
+
+    gamesThatAreOver = (docs) ->
+      last_seq: docs.last_seq
+      results: docs.results.filter isOver
+
+    listenGameover = (req, res, next) =>
+      @games.listenGames req.params.since, (err, value) ->
+        if err
+        then sendError err, next
+        else sendJson gamesThatAreOver(value), res, next
 
     server.get "#{prefix}/auth/:authToken/games/:id",
       authMiddleware, gameMiddleware, getGame
@@ -168,6 +199,8 @@ class CoordinatorApi
     root = "/#{prefix}/auth/:authToken/:type/:version"
     server.get "#{root}/active-games", authMiddleware, getActiveGames
     server.post "#{root}/games", authMiddleware, postGame
+
+    server.get "#{prefix}/gameover", secretMiddleware, listenGameover
 
 module.exports =
   create: (options = {}) -> new CoordinatorApi(options)

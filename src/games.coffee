@@ -21,7 +21,30 @@ class Module
 
   newModel: (obj) ->
     new GameModel(obj, @db)
+
   activeGames: (type, username) -> new ActiveGames(type, username, @db)
+
+  listenGames: (since = -1, callback) ->
+    @db.pollChanges since, (err, polldata) =>
+      if err || polldata.results.length == 0
+      then callback err, polldata
+      else
+        ids = polldata.results
+        .map    (x) -> x.id
+        .filter (x) -> x[0] != "_"
+        @db.fetch ids, (err, data) ->
+          results = data.rows
+          .map (x) -> x.doc
+          .map fixId
+          callback err,
+            last_seq: polldata.last_seq
+            results:  results
+
+fixId = (x) ->
+  x.id = x._id
+  delete x._id
+  delete x._rev
+  x
 
 # fields:
 #

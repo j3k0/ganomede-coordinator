@@ -28,5 +28,7 @@ module.exports = {
     port: +process.env.REDIS_AUTH_PORT_6379_TCP_PORT || 6379
   },
 
+  apiSecret: process.env.API_SECRET,
+
   gameServers: gameServers()
 };

@@ -1,6 +1,6 @@
 app:
     build: .
-    command: make BUNYAN_LEVEL=0 run
+    command: node index.js | ./node_modules/.bin/bunyan -l 0
     volumes:
      - src:/home/app/code/src
      - tests:/home/app/code/tests
@@ -14,6 +14,8 @@ app:
     links:
      - couchGames:couch_games
      - redisAuth:redis_auth
+    environment:
+     - "API_SECRET=1234"
 
 couchGames:
     image: klaemo/couchdb:1.6.1

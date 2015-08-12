@@ -10,6 +10,8 @@ samples = require './sample-data'
 server = require '../src/server'
 Games = require '../src/games'
 
+process.env.API_SECRET = "1234"
+
 coordinatorApi = require "../src/coordinator-api"
 
 go = supertest.bind(supertest, server)
@@ -146,5 +148,46 @@ describe "Coordinator API", ->
       go()
         .post endpoint("/auth/p2-token/games/#{id}/leave")
         .expect 403, done
+
+  describe "GET /gameover", ->
+
+    last_seq = -1
+    secret = "secret=#{process.env.API_SECRET}"
+
+    it 'requires API_SECRET', (done) ->
+      go()
+        .get endpoint("/gameover")
+        .expect 401, done
+
+    it 'returns all games that are over', (done) ->
+      go()
+        .get endpoint("/gameover?#{secret}")
+        .expect 200
+        .end (err, res) ->
+          expect(err).to.be(null)
+          expect(typeof res.body.last_seq).to.eql "number"
+          statuses = res.body.results.map (x) -> x.status
+          gameover = statuses.filter (x) -> x == "gameover"
+          expect(gameover.length).to.eql statuses.length
+          last_seq = res.body.last_seq
+          done()
+
+    it 'listen for changes', (done) ->
+      since = "since=#{last_seq}"
+      id = samples.docs[0]._id
+      go()
+        .get endpoint("/gameover?#{secret}&#{since}")
+        .expect 200
+        .end (err, res) ->
+          console.log(JSON.stringify(res.body))
+          expect(res.body.last_seq).to.eql(last_seq + 1)
+          expect(res.body.results.length).to.eql(1)
+          done()
+      go()
+        .post endpoint("/auth/p1-token/games/#{id}/gameover")
+        .send gameOverData: { dummy: "indeed" }
+        .expect 200
+        .end (err, res) ->
+          expect(err).to.be(null)
 
 # vim: ts=2:sw=2:et:
