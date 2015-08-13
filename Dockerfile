@@ -16,7 +16,7 @@ COPY src /home/app/code/src
 USER root
 RUN chown -R app /home/app
 
-ENV API_SECRET=CHANGEME
+ENV API_SECRET=1234
 
 WORKDIR /home/app/code
 USER app
