@@ -16,6 +16,8 @@ COPY src /home/app/code/src
 USER root
 RUN chown -R app /home/app
 
+ENV API_SECRET=CHANGEME
+
 WORKDIR /home/app/code
 USER app
 RUN make
