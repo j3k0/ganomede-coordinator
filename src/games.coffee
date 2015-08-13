@@ -37,6 +37,7 @@ class Module
             callback err
           else
             results = data.rows
+            .filter (x) -> x?.doc?._id
             .map (x) -> x.doc
             .map fixId
             callback err,
