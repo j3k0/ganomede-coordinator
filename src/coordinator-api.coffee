@@ -166,6 +166,7 @@ class CoordinatorApi
       game.gameOverData = req.body.gameOverData
       game.status = "gameover"
       game.viewers = game.players
+      game.date = +new Date()
       next()
 
     sendJson = (data, res, next) ->
