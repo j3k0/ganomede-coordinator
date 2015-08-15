@@ -20,6 +20,7 @@ class DB
     options =
       feed: "longpoll"
       timeout: 29000
+      limit: 100
     if since != -1
       options.since = since
     @db.changes options, callback
