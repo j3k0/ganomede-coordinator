@@ -18,6 +18,8 @@ Configuration
  * `COUCH_GAMES_PORT_5984_TCP_PORT` - Port of the games couchdb
  * `REDIS_AUTH_PORT_6379_TCP_ADDR` - IP of the AuthDB redis
  * `REDIS_AUTH_PORT_6379_TCP_PORT` - Port of the AuthDB redis
+ * `NOTIFICATIONS_PORT_8080_TCP_ADDR` - IP of the notifications service
+ * `NOTIFICATIONS_PORT_8080_TCP_PORT` - Port of the notifications service
  * `GAME_SERVERS_URL` - Comma separated list of servers
  * `API_SECRET` - Give access to private APIs
 
@@ -81,6 +83,14 @@ When status is `inactive`, `waiting` will contains the list of username that did
 
 ## Edit a game [POST]
 
+### body (application/json)
+
+(optional)
+
+    {
+        "reason": "resign"
+    }
+
 ### response [200] OK
 
     {
@@ -99,6 +109,12 @@ When status is `inactive`, `waiting` will contains the list of username that did
  * This is only allowed when called by a non waiting user.
     * Will reply with status 403 otherwise.
  * `status` will change to `inactive`
+ * a notification will be sent to other players
+    * from coordinator/v1
+    * type leave
+    * data.gameId = "123466765785232"
+    * data.player = "username"
+    * data.reason = "resign"
 
 # Single Game Over [/coordinator/v1/auth/:token/games/:id/gameover]
 
