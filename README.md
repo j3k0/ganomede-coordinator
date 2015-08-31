@@ -78,6 +78,11 @@ When status is `inactive`, `waiting` will contains the list of username that did
  * This is only allowed for inactive games, when called by a "waiting" user.
     * Will reply with status 403 otherwise.
  * `status` will change to `active` when there is no more waiting players.
+ * a notification will be sent to active players (that aren't in the waiting list)
+    * from coordinator/v1
+    * type join
+    * data.gameId = "123466765785232"
+    * data.player = "username"
 
 # Single Game Leave [/coordinator/v1/auth/:token/games/:id/leave]
 
