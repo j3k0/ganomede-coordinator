@@ -138,7 +138,6 @@ describe "Coordinator API", ->
         .post endpoint("/auth/p2-token/games/#{id}/leave")
         .expect 200
         .end (err, res) ->
-          console.dir err
           expect(err).to.be(null)
           expect(res.body).to.eql(samples.leaveGameRes)
           done()
@@ -179,7 +178,6 @@ describe "Coordinator API", ->
         .get endpoint("/gameover?#{secret}&#{since}")
         .expect 200
         .end (err, res) ->
-          console.log(JSON.stringify(res.body))
           expect(res.body.last_seq).to.eql(last_seq + 1)
           expect(res.body.results.length).to.eql(1)
           done()
