@@ -22,7 +22,9 @@
     "newrelic": "^1.20.2",
     "eslint": "^0.10.0",
     "forever": "^0.13.0",
+    "ganomede-helpers": "^0.4.2",
     "jshint": "^2.5.10",
+    "lodash": "^3.10.1",
     "mocha": "^2.0.1",
     "nano": "^6.1.2",
     "restify": "^2.8.3",
@@ -42,6 +44,7 @@
     "istanbul": "https://github.com/duereg/istanbul/archive/master.tar.gz",
     "memdown": "^1.0.0",
     "pouchdb-server": "^0.6.5",
+    "sinon": "^1.16.1",
     "supertest": "^0.15.0"
   }
 }

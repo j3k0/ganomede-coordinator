@@ -1,7 +1,6 @@
-assert = require "assert"
-vasync = require 'vasync'
 expect = require 'expect.js'
 supertest = require 'supertest'
+sinon = require 'sinon'
 
 config = require '../config'
 fakeAuthdb = require './fake-authdb'
@@ -13,6 +12,7 @@ Games = require '../src/games'
 process.env.API_SECRET = "1234"
 
 coordinatorApi = require "../src/coordinator-api"
+coordinatorNotifications = require "../src/coordinator-notifications"
 
 go = supertest.bind(supertest, server)
 
@@ -20,8 +20,8 @@ endpoint = (path) ->
   return "/#{config.routePrefix}#{path || ''}"
 
 describe "Coordinator API", ->
-
   authdb = fakeAuthdb.createClient()
+  sendNotificationSpy = sinon.spy()
 
   before (done) ->
     for own username, data of samples.users
@@ -32,6 +32,7 @@ describe "Coordinator API", ->
       api = coordinatorApi.create
         authdbClient: authdb
         games: games
+        sendNotification: sendNotificationSpy
       api.addRoutes(endpoint(), server)
       server.listen 1337, ->
         helpers.initDb (err, db_) ->
@@ -123,6 +124,15 @@ describe "Coordinator API", ->
           expect(res.body).to.eql(samples.postGameRes2)
           done()
 
+    it 'sends notification to other active players, when someone joins', () ->
+      # p2 joined a game `samples.postGameRes` with players [p1, p2],
+      # expect sendNotification() to be called once for notifying p1.
+      expect(sendNotificationSpy.calledOnce).to.be(true)
+      notification = sendNotificationSpy.firstCall.args[0]
+      expect(notification.to).to.be('p1')
+      expect(notification.data.player).to.be('p2')
+      expect(notification.type).to.be(coordinatorNotifications.JOIN)
+
   describe "POST /games/:id/leave", ->
 
     it 'rejects non participating players', (done) ->
@@ -147,6 +157,15 @@ describe "Coordinator API", ->
       go()
         .post endpoint("/auth/p2-token/games/#{id}/leave")
         .expect 403, done
+
+    it 'notifies other active players wnen someone leaves', () ->
+      # p2 left game `samples.postGameRes` with players [p1, p2],
+      # expect sendNotification() to be called once for notifying p2.
+      expect(sendNotificationSpy.calledTwice).to.be(true)
+      notification = sendNotificationSpy.secondCall.args[0]
+      expect(notification.to).to.be('p1')
+      expect(notification.data.player).to.be('p2')
+      expect(notification.type).to.be(coordinatorNotifications.LEAVE)
 
   describe "GET /gameover", ->
 
