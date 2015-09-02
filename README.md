@@ -78,11 +78,7 @@ When status is `inactive`, `waiting` will contains the list of username that did
  * This is only allowed for inactive games, when called by a "waiting" user.
     * Will reply with status 403 otherwise.
  * `status` will change to `active` when there is no more waiting players.
- * a notification will be sent to active players (that aren't in the waiting list)
-    * from coordinator/v1
-    * type join
-    * data.gameId = "123466765785232"
-    * data.player = "username"
+ * [a notification](https://github.com/j3k0/ganomede-notifications/blob/master/api-docs/coordinator.md) will be sent to other active players (that aren't in the waiting list)
 
 # Single Game Leave [/coordinator/v1/auth/:token/games/:id/leave]
 
@@ -114,12 +110,7 @@ When status is `inactive`, `waiting` will contains the list of username that did
  * This is only allowed when called by a non waiting user.
     * Will reply with status 403 otherwise.
  * `status` will change to `inactive`
- * a notification will be sent to other players
-    * from coordinator/v1
-    * type leave
-    * data.gameId = "123466765785232"
-    * data.player = "username"
-    * data.reason = "resign"
+ * [a notification](https://github.com/j3k0/ganomede-notifications/blob/master/api-docs/coordinator.md) will be sent to other active players.
 
 # Single Game Over [/coordinator/v1/auth/:token/games/:id/gameover]
 
@@ -223,4 +214,3 @@ Inactive games will have an expiry date of 1 month.
  * `seq`: The update sequence number.
  * `id`: The document ID.
  * `changes`: An array of fields, which by default includes the document’s revision ID, but can also include information about document conflicts and other things.
-
