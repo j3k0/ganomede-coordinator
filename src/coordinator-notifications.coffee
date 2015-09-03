@@ -7,11 +7,19 @@ log = require './log'
 JOIN = 'join'
 LEAVE = 'leave'
 
+activePlayers = (game) ->
+  unless game.waiting?.length
+    return game.players
+
+  return game.players.filter (username) ->
+    game.waiting.indexOf(username) == -1
+
 # Returns [helpers.Notification] for every player that should be notified
 # about @playerInQuestion leaving/joining (@type) game @game.
 createNotifications = (type, game, playerInQuestion) ->
   # Notify everyone except @playerInQuestion
-  whoToNotify = game.players.filter (username) -> username != playerInQuestion
+  whoToNotify = activePlayers(game).filter (username) ->
+    username != playerInQuestion
 
   return whoToNotify.map (username) ->
     n = new helpers.Notification({

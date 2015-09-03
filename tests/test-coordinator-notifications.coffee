@@ -7,11 +7,13 @@ config = require '../config'
 describe 'Coordinator Notifications', () ->
   playerJoining = 'joiner'
   playerLeaving = 'leaver'
+  inactivePlayer = 'inactive-player'
+  activePlayer = 'active-player'
   game = {
     id: 'game-id'
     type: 'game-type/v1'
-    players: [playerJoining, playerLeaving, 'other-guy']
-    waiting: [playerLeaving]
+    players: [playerJoining, playerLeaving, activePlayer, inactivePlayer]
+    waiting: [playerLeaving, inactivePlayer]
   }
 
   testNotification = (n, expectedType, expectedData={}) ->
@@ -22,35 +24,28 @@ describe 'Coordinator Notifications', () ->
       compareMethod = if typeof val == 'object' then 'eql' else 'be'
       expect(n.data[key]).to[compareMethod](val)
 
-  describe '.join()', () ->
-    it 'creates correct `join` notifications', () ->
-      for n in notifications.join(game, playerJoining)
-        testNotification(n, notifications.JOIN, {
-          game: lodash.pick(game, 'id', 'type', 'players')
-          player: playerJoining
-        })
+  it 'creates correct `join` notifications', () ->
+    for n in notifications.join(game, playerJoining)
+      testNotification(n, notifications.JOIN, {
+        game: lodash.pick(game, 'id', 'type', 'players')
+        player: playerJoining
+      })
 
-    it 'creates `join` notification for every active player
-        except the one joining',
-    () ->
-      n = notifications.join(game, playerJoining)
-      usersToBeNotified = lodash.pluck(n, 'to')
-      usersExpectedToBeNotified = game.players.filter (u) -> u != playerJoining
-      expect(usersToBeNotified).to.eql(usersExpectedToBeNotified)
+  it 'creates correct `leave` notifications', () ->
+    for n in notifications.leave(game, playerLeaving)
+      testNotification(n, notifications.LEAVE, {
+        game: lodash.pick(game, 'id', 'type', 'players')
+        player: playerLeaving
+        reason: 'resign'
+      })
 
-  describe '.leave()', () ->
-    it 'creates correct `leave` notifications', () ->
-      for n in notifications.leave(game, playerLeaving)
-        testNotification(n, notifications.LEAVE, {
-          game: lodash.pick(game, 'id', 'type', 'players')
-          player: playerLeaving
-          reason: 'resign'
-        })
+  it 'creates notifications only for active players
+      except the one joining/leaving',
+  () ->
+    n1 = notifications.join(game, playerJoining)
+    usersToBeNotifiedOfJoin = lodash.pluck(n1, 'to')
+    expect(usersToBeNotifiedOfJoin).to.eql([activePlayer])
 
-    it 'creates `leave` notifications for every active player
-        except the one joining',
-    () ->
-      n = notifications.leave(game, playerLeaving)
-      usersToBeNotified = lodash.pluck(n, 'to')
-      usersExpectedToBeNotified = game.players.filter (u) -> u != playerLeaving
-      expect(usersToBeNotified.sort()).to.eql(usersExpectedToBeNotified.sort())
+    n2 = notifications.join(game, playerLeaving)
+    usersToBeNotifiedOfLeave = lodash.pluck(n2, 'to')
+    expect(usersToBeNotifiedOfLeave).to.eql([playerJoining, activePlayer])
