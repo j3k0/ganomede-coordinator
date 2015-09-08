@@ -6,7 +6,7 @@ config = require '../config'
 fakeAuthdb = require './fake-authdb'
 helpers = require './helpers'
 samples = require './sample-data'
-server = require '../src/server'
+Server = require '../src/server'
 Games = require '../src/games'
 
 process.env.API_SECRET = "1234"
@@ -14,16 +14,22 @@ process.env.API_SECRET = "1234"
 coordinatorApi = require "../src/coordinator-api"
 coordinatorNotifications = require "../src/coordinator-notifications"
 
-go = supertest.bind(supertest, server)
-
 endpoint = (path) ->
   return "/#{config.routePrefix}#{path || ''}"
 
 describe "Coordinator API", ->
-  authdb = fakeAuthdb.createClient()
-  sendNotificationSpy = sinon.spy()
 
-  before (done) ->
+  sendNotificationSpy = null
+  go = null
+  server = null
+  port = 1337
+
+  beforeEach (done) ->
+    server = Server.createServer()
+    go = supertest.bind(supertest, server)
+    authdb = fakeAuthdb.createClient()
+    sendNotificationSpy = sinon.spy()
+
     for own username, data of samples.users
       authdb.addAccount data.token, data.account
 
@@ -34,12 +40,12 @@ describe "Coordinator API", ->
         games: games
         sendNotification: sendNotificationSpy
       api.addRoutes(endpoint(), server)
-      server.listen 1337, ->
+      server.listen port++, ->
         helpers.initDb (err, db_) ->
           db = db_
           done(err)
 
-  after (done) ->
+  afterEach (done) ->
     server.close ->
       helpers.dropDb(done)
 
@@ -105,7 +111,45 @@ describe "Coordinator API", ->
           expect(res.body).to.eql(samples.postGameRes3)
           done()
 
+  postTestGame = (done) ->
+    go()
+      .post endpoint("/auth/p1-token/rule/v1/games")
+      .send samples.postGame
+      .end (err, res) ->
+        expect(err).to.be(null)
+        samples.postGameRes.id = res.body.id
+        expect(res.body).to.eql(samples.postGameRes)
+        done()
+
+  p2Join = (done) ->
+    id = samples.postGameRes.id
+    samples.postGameRes2.id = id
+    go()
+      .post endpoint("/auth/p2-token/games/#{id}/join")
+      .expect 200
+      .end (err, res) ->
+        expect(err).to.be(null)
+        expect(res.body).to.eql(samples.postGameRes2)
+        done()
+
+  p2Leave = (reason, done) ->
+    if typeof reason == 'function'
+      done = reason
+      reason = undefined
+    id = samples.postGameRes.id
+    samples.leaveGameRes.id = id
+    goPost = go()
+      .post endpoint("/auth/p2-token/games/#{id}/leave")
+      .expect 200
+    if reason
+      goPost = goPost.send reason:reason
+    goPost.end (err, res) ->
+      expect(err).to.be(null)
+      done()
+
   describe "POST /games/:id/join", ->
+
+    beforeEach postTestGame
 
     it 'allows only waiting players to join', (done) ->
       id = samples.postGameRes.id
@@ -127,13 +171,22 @@ describe "Coordinator API", ->
     it 'sends notification to other active players, when someone joins', () ->
       # p2 joined a game `samples.postGameRes` with players [p1, p2],
       # expect sendNotification() to be called once for notifying p1.
-      expect(sendNotificationSpy.calledOnce).to.be(true)
-      notification = sendNotificationSpy.firstCall.args[0]
-      expect(notification.to).to.be('p1')
-      expect(notification.data.player).to.be('p2')
-      expect(notification.type).to.be(coordinatorNotifications.JOIN)
+      id = samples.postGameRes.id
+      samples.postGameRes2.id = id
+      go()
+        .post endpoint("/auth/p2-token/games/#{id}/join")
+        .expect 200
+        .end (err, res) ->
+          expect(sendNotificationSpy.calledOnce).to.be(true)
+          notification = sendNotificationSpy.firstCall.args[0]
+          expect(notification.to).to.be('p1')
+          expect(notification.data.player).to.be('p2')
+          expect(notification.type).to.be(coordinatorNotifications.JOIN)
 
   describe "POST /games/:id/leave", ->
+
+    beforeEach postTestGame
+    beforeEach p2Join
 
     it 'rejects non participating players', (done) ->
       id = samples.postGameRes.id
@@ -153,19 +206,35 @@ describe "Coordinator API", ->
           done()
 
     it 'rejects non waiting players', (done) ->
-      id = samples.postGameRes.id
-      go()
-        .post endpoint("/auth/p2-token/games/#{id}/leave")
-        .expect 403, done
+      p2Leave ->
+        id = samples.postGameRes.id
+        go()
+          .post endpoint("/auth/p2-token/games/#{id}/leave")
+          .expect 403, done
 
-    it 'notifies other active players wnen someone leaves', () ->
-      # p2 left game `samples.postGameRes` with players [p1, p2],
-      # expect sendNotification() to be called once for notifying p2.
-      expect(sendNotificationSpy.calledTwice).to.be(true)
-      notification = sendNotificationSpy.secondCall.args[0]
-      expect(notification.to).to.be('p1')
-      expect(notification.data.player).to.be('p2')
-      expect(notification.type).to.be(coordinatorNotifications.LEAVE)
+    it 'notifies other active players wnen someone leaves', (done) ->
+      p2Leave ->
+        # p2 left game `samples.postGameRes` with players [p1, p2],
+        # expect sendNotification() to be called once for notifying p1.
+        # (first call was for the beforeEach's p2 join)
+        expect(sendNotificationSpy.calledTwice).to.be(true)
+        notification = sendNotificationSpy.secondCall.args[0]
+        expect(notification.to).to.be('p1')
+        expect(notification.data.player).to.be('p2')
+        expect(notification.type).to.be(coordinatorNotifications.LEAVE)
+        done()
+
+    it 'notifies other active players of undefined reason', (done) ->
+      p2Leave ->
+        notification = sendNotificationSpy.secondCall.args[0]
+        expect(notification.data.reason).to.be(undefined)
+        done()
+
+    it 'notifies other active players of defined reason', (done) ->
+      p2Leave "resign", ->
+        notification = sendNotificationSpy.secondCall.args[0]
+        expect(notification.data.reason).to.be("resign")
+        done()
 
   describe "GET /gameover", ->
 

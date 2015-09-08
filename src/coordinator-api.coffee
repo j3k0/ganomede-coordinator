@@ -168,7 +168,8 @@ class CoordinatorApi
 
       req.params.notifications = notifications.leave(game, username)
       if req.body?.reason
-        req.params.notifications.data.reason = req.body.reason
+        req.params.notifications.forEach (n) ->
+          n.data.reason = req.body.reason
       next()
 
     # POST /games/:id/gameover
