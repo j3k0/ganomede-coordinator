@@ -170,6 +170,11 @@ class CoordinatorApi
       if req.body?.reason
         req.params.notifications.forEach (n) ->
           n.data.reason = req.body.reason
+          if n.data.reason == "resign"
+            n.data.push =
+              app: game.type
+              title: [ "opponent_has_left_title" ]
+              message: [ "opponent_has_left_message", username ]
       next()
 
     # POST /games/:id/gameover

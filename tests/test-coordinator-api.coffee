@@ -231,9 +231,21 @@ describe "Coordinator API", ->
         done()
 
     it 'notifies other active players of defined reason', (done) ->
+      p2Leave "exit", ->
+        notification = sendNotificationSpy.secondCall.args[0]
+        expect(notification.data.reason).to.be("exit")
+        expect(notification.data.push).to.be(undefined)
+        done()
+
+    it 'push notifies other active players when resign', (done) ->
       p2Leave "resign", ->
         notification = sendNotificationSpy.secondCall.args[0]
         expect(notification.data.reason).to.be("resign")
+        expect(notification.data.push).to.be.ok()
+        expect(notification.data.push).to.eql
+          app: samples.postGameRes.type
+          title: [ "opponent_has_left_title" ]
+          message: [ "opponent_has_left_message", "p2" ]
         done()
 
   describe "GET /gameover", ->
