@@ -1,9 +1,12 @@
 restify = require('restify')
 
-server = restify.createServer()
+createServer = ->
+  server = restify.createServer()
 
-server.use restify.queryParser()
-server.use restify.bodyParser()
-server.use restify.gzipResponse()
+  server.use restify.queryParser()
+  server.use restify.bodyParser()
+  server.use restify.gzipResponse()
+  return server
 
-module.exports = server
+module.exports =
+  createServer: createServer

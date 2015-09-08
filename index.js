@@ -29,7 +29,7 @@ else {
     // worker
     var restify = require("restify");
     var main = require("./src/main");
-    var server = require('./src/server');
+    var server = require('./src/server').createServer();
 
     // Intitialize backend, add routes
     main.initialize();

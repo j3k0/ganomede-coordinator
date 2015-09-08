@@ -18,6 +18,8 @@ Configuration
  * `COUCH_GAMES_PORT_5984_TCP_PORT` - Port of the games couchdb
  * `REDIS_AUTH_PORT_6379_TCP_ADDR` - IP of the AuthDB redis
  * `REDIS_AUTH_PORT_6379_TCP_PORT` - Port of the AuthDB redis
+ * `NOTIFICATIONS_PORT_8080_TCP_ADDR` - IP of the notifications service
+ * `NOTIFICATIONS_PORT_8080_TCP_PORT` - Port of the notifications service
  * `GAME_SERVERS_URL` - Comma separated list of servers
  * `API_SECRET` - Give access to private APIs
 
@@ -76,10 +78,19 @@ When status is `inactive`, `waiting` will contains the list of username that did
  * This is only allowed for inactive games, when called by a "waiting" user.
     * Will reply with status 403 otherwise.
  * `status` will change to `active` when there is no more waiting players.
+ * [a notification](https://github.com/j3k0/ganomede-notifications/blob/master/api-docs/coordinator.md) will be sent to other active players (that aren't in the waiting list)
 
 # Single Game Leave [/coordinator/v1/auth/:token/games/:id/leave]
 
 ## Edit a game [POST]
+
+### body (application/json)
+
+(optional)
+
+    {
+        "reason": "resign"
+    }
 
 ### response [200] OK
 
@@ -99,6 +110,7 @@ When status is `inactive`, `waiting` will contains the list of username that did
  * This is only allowed when called by a non waiting user.
     * Will reply with status 403 otherwise.
  * `status` will change to `inactive`
+ * [a notification](https://github.com/j3k0/ganomede-notifications/blob/master/api-docs/coordinator.md) will be sent to other active players.
 
 # Single Game Over [/coordinator/v1/auth/:token/games/:id/gameover]
 
@@ -202,4 +214,3 @@ Inactive games will have an expiry date of 1 month.
  * `seq`: The update sequence number.
  * `id`: The document ID.
  * `changes`: An array of fields, which by default includes the document’s revision ID, but can also include information about document conflicts and other things.
-

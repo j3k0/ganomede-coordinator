@@ -1,8 +1,10 @@
 log = require "./log"
 authdb = require "authdb"
 restify = require "restify"
+helpers = require 'ganomede-helpers'
 config = require '../config'
 gameServers = require './game-servers'
+notifications = require './coordinator-notifications'
 
 sendError = (err, next) ->
   log.error err
@@ -20,6 +22,10 @@ class CoordinatorApi
     @games = options.games
 
     @gameServers = options.gameServers || gameServers
+
+    # function for sending out notifications
+    @sendNotification = options.sendNotification ||
+      helpers.Notification.sendFn()
 
   addRoutes: (prefix, server) ->
 
@@ -110,12 +116,16 @@ class CoordinatorApi
 
     saveGame = (req, res, next) =>
       game = req.params.game
-      game.save (err) ->
+      game.save (err) =>
         if err
           return sendError(err, next)
+
+        # send out notifications if there are any
+        if req.params.notifications?.length
+          notifications.send(@sendNotification, req.params.notifications)
+
         res.send game.toJSON()
         next()
-        # TODO: Send notification
 
     # POST /games/:id/join
     postJoin = (req, res, next) =>
@@ -132,6 +142,8 @@ class CoordinatorApi
       if game.waiting.length == 0
         delete game.waiting
         game.status = "active"
+
+      req.params.notifications = notifications.join(game, username)
       next()
 
     # POST /games/:id/leave
@@ -153,6 +165,16 @@ class CoordinatorApi
       else
         err = new restify.InternalError('Invalid game state')
         return sendError err, next
+
+      req.params.notifications = notifications.leave(game, username)
+      if req.body?.reason
+        req.params.notifications.forEach (n) ->
+          n.data.reason = req.body.reason
+          if n.data.reason == "resign"
+            n.data.push =
+              app: game.type
+              title: [ "opponent_has_left_title" ]
+              message: [ "opponent_has_left_message", username ]
       next()
 
     # POST /games/:id/gameover
