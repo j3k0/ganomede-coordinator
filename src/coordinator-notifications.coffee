@@ -32,9 +32,6 @@ createNotifications = (type, game, playerInQuestion) ->
       }
     })
 
-    if type == LEAVE
-      n.data.reason = 'resign'
-
     return n
 
 send = (sendFn, notifications, callback) ->

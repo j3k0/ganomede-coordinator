@@ -36,7 +36,6 @@ describe 'Coordinator Notifications', () ->
       testNotification(n, notifications.LEAVE, {
         game: lodash.pick(game, 'id', 'type', 'players')
         player: playerLeaving
-        reason: 'resign'
       })
 
   it 'creates notifications only for active players
