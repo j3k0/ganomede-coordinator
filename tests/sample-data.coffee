@@ -13,6 +13,9 @@ docs = [
   createGame "0000000000000000003", "p2", "p3"
 ]
 
+for i in [1..100]
+  docs.push createGame "x100#{i}", "p100", "pp#{i}"
+
 module.exports =
   docs: docs
 

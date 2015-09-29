@@ -122,4 +122,29 @@ describe 'Games', () ->
         done()
       null
 
+    it 'should contains as many games as possible', (done) ->
+      games = new Games
+      collection = null
+      vasync.waterfall [
+
+        # Initialize DB
+        (cb) ->
+          games.initialize callback: (err) -> cb(err)
+
+        # Fetch active games
+        (cb) ->
+          collection = games.activeGames("rule/v1", "p100")
+          collection.fetch (err) -> cb(err)
+
+        # Check that it's like samples
+        (cb) ->
+          console.log(collection.models.length)
+          expect(collection.models.length).to.equal(100)
+          cb()
+
+      ], (err, results) ->
+        expect(err).to.be(null)
+        done()
+      null
+
 # vim: ts=2:sw=2:et:

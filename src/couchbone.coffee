@@ -113,6 +113,8 @@ class Collection
     # if (before)
     #   options.startkey.push(1 - before)
   
+    if !options.limit
+      options.limit = 1000000000
     @db.view design, view, options, (err, values) =>
       if (err)
         return callback(err)
