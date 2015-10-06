@@ -29,7 +29,7 @@ class DB
 
   # Gets doc by its id.
   get: (id, callback) ->
-    @db.get id, (err, doc, headers) ->
+    @db.get id, (err, doc, headers) =>
       if err && !(err.error == 'not_found' && err.reason == 'missing')
         @log.error 'Failed to retrieve Couch doc',
           err: err,
@@ -80,12 +80,12 @@ class DB
     if qs.limit == undefined
       qs.limit = DEFAULT_LIMIT
   
-    @db.view design, view, qs, (err, result, headers) ->
+    @db.view design, view, qs, (err, result, headers) =>
       if (err)
         # Query parse errors have lower severity level,
         # so we use WARN for them.
         method = if err.error == 'query_parse_error' then 'warn' else 'error'
-        log[method] "Failed to query _#{design}/#{view}",
+        @log[method] "Failed to query _#{design}/#{view}",
           err: err,
           qs: qs
           headers: headers
