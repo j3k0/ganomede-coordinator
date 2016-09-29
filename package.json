@@ -13,7 +13,7 @@
   "author": "Jean-Christophe Hoelt <hoelt@fovea.cc>",
   "license": "Private",
   "dependencies": {
-    "authdb": "https://github.com/elmigranto/node-authdb/archive/v1.tar.gz",
+    "authdb": "^0.3.0",
     "blanket": "^1.1.6",
     "bunyan": "^1.2.3",
     "coffee-script": "^1.8.0",
@@ -21,7 +21,7 @@
     "concat-stream": "^1.4.7",
     "eslint": "^0.10.0",
     "forever": "^0.13.0",
-    "ganomede-helpers": "^1.0.0-beta2",
+    "ganomede-helpers": "^1.0.1",
     "jshint": "^2.5.10",
     "lodash": "^3.10.1",
     "mocha": "^2.0.1",
