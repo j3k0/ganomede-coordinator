@@ -1,9 +1,10 @@
 expect = require 'expect.js'
 supertest = require 'supertest'
 sinon = require 'sinon'
+fakeRedis = require 'fakeredis'
+authdb = require 'authdb'
 
 config = require '../config'
-fakeAuthdb = require './fake-authdb'
 helpers = require './helpers'
 samples = require './sample-data'
 Server = require '../src/server'
@@ -24,19 +25,24 @@ describe "Coordinator API", ->
   server = null
   port = 1337
 
+  beforeEachIteration = 0
+
   beforeEach (done) ->
+    beforeEachIteration = beforeEachIteration + 1
     server = Server.createServer()
     go = supertest.bind(supertest, server)
-    authdb = fakeAuthdb.createClient()
+    authdbClient = authdb.createClient({
+      redisClient: fakeRedis.createClient("fake-auth-#{beforeEachIteration}")
+    })
     sendNotificationSpy = sinon.spy()
 
     for own username, data of samples.users
-      authdb.addAccount data.token, data.account
+      authdbClient.addAccount data.token, data.account
 
     games = new Games
     games.initialize callback: (err) ->
       api = coordinatorApi.create
-        authdbClient: authdb
+        authdbClient: authdbClient
         games: games
         sendNotification: sendNotificationSpy
       api.addRoutes(endpoint(), server)
@@ -65,6 +71,14 @@ describe "Coordinator API", ->
       go()
         .get endpoint("/auth/p1-token/games/0000000000000000003")
         .expect 401, done
+
+    it 'allows logging in via API_SECRET', (done) ->
+      username = samples.users.p1.account.username
+      gameId = 'games/0000000000000000001'
+
+      go()
+        .get(endpoint "/auth/#{process.env.API_SECRET}.#{username}/#{gameId}")
+        .expect 200, done
 
   describe "GET /active-games", ->
     it 'fetches the list of active games', (done) ->

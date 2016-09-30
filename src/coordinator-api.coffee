@@ -34,19 +34,10 @@ class CoordinatorApi
     #
 
     # Populates req.params.user with value returned from authDb.getAccount()
-    authMiddleware = (req, res, next) =>
-      authToken = req.params.authToken
-      if !authToken
-        err = new restify.InvalidContentError('invalid content')
-        return sendError(err, next)
-
-      @authdbClient.getAccount authToken, (err, account) ->
-        if err || !account
-          err = new restify.UnauthorizedError('not authorized')
-          return sendError(err, next)
-
-        req.params.user = account
-        next()
+    authMiddleware = helpers.restify.middlewares.authdb.create({
+      authdbClient: @authdbClient,
+      secret: config.apiSecret
+    })
 
     # Check the API secret key validity
     secretMiddleware = (req, res, next) =>
