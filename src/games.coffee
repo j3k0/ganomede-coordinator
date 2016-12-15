@@ -25,7 +25,12 @@ class Module
   activeGames: (type, username) -> new ActiveGames(type, username, @db)
 
   listenGames: (since = -1, callback) ->
-    @db.pollChanges since, (err, polldata) =>
+    options = {}
+    if typeof since == "object"
+      options = since
+    else
+      options.since = since
+    @db.pollChanges options, (err, polldata) =>
       if err || polldata.results.length == 0
       then callback err, polldata
       else

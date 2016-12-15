@@ -17,12 +17,15 @@ class DB
   @views: null
 
   pollChanges: (since, callback) ->
-    options =
-      feed: "longpoll"
-      timeout: 29000
-      limit: 2048
+    options = {}
+    if typeof since == "object"
+      options = since
+      since = options.since
     if since != -1
       options.since = since
+    options.feed = "longpoll"
+    options.timeout = options.timeout || 29000
+    options.limit = options.limit || 2048
     @db.changes options, callback
 
   fetch: (ids, callback) -> @db.fetch {keys:ids}, {}, callback

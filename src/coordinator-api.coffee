@@ -193,7 +193,10 @@ class CoordinatorApi
       results: docs.results.filter isOver
 
     listenGameover = (req, res, next) =>
-      @games.listenGames req.params.since, (err, value) ->
+      options =
+        since: req.params.since
+        limit: req.params.limit || 2048
+      @games.listenGames options, (err, value) ->
         if err
         then sendError err, next
         else sendJson gamesThatAreOver(value), res, next
