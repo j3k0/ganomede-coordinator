@@ -18,7 +18,7 @@ RUN chown -R app /home/app
 
 USER app
 WORKDIR /home/app/code
-CMD node_modules/.bin/forever index.js
+CMD node index.js
 
 ENV API_SECRET=1234
 ENV NODE_ENV=production
