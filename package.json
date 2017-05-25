@@ -8,7 +8,9 @@
   "scripts": {
     "start": "./node_modules/.bin/forever start index.js",
     "stop": "./node_modules/.bin/forever stop index.js",
-    "test": "./run_tests.sh"
+    "test": "./run_tests.sh",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "author": "Jean-Christophe Hoelt <hoelt@fovea.cc>",
   "license": "Private",
@@ -28,7 +30,8 @@
     "nano": "^6.1.2",
     "newrelic": "^1.20.2",
     "restify": "^4.1.1",
-    "vasync": "^1.6.2"
+    "vasync": "^1.6.2",
+    "snyk": "^1.30.1"
   },
   "config": {
     "blanket": {
@@ -47,5 +50,6 @@
     "pouchdb-server": "^0.6.5",
     "sinon": "^1.16.1",
     "supertest": "^0.15.0"
-  }
+  },
+  "snyk": true
 }
