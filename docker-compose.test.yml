@@ -1,0 +1,65 @@
+version: '2'
+services:
+  sut:
+    build: .
+    command: sh -c "npm test"
+    volumes:
+     - ./src:/home/app/code/src
+     - ./tests:/home/app/code/tests
+     - ./doc:/home/app/code/doc
+     - ./Makefile:/home/app/code/Makefile
+     - ./index.js:/home/app/code/index.js
+     - ./config.js:/home/app/code/config.js
+     - ./package.json:/home/app/code/package.json
+    depends_on:
+     - app
+    environment:
+     - "BASE_URL=http://app:8000"
+     - "API_SECRET=1234"
+     - "LOG_LEVEL=error"
+     - "REDIS_AUTH_PORT_6379_TCP_ADDR=redis"
+     - "COUCH_GAMES_PORT_5984_TCP_ADDR=couch"
+     - "NOTIFICATIONS_PORT_8080_TCP_ADDR=notifications"
+     - "NOTIFICATIONS_PORT_8080_TCP_PORT=8000"
+     - "NODE_ENV="
+
+  app:
+    build: .
+    command: node index.js
+    volumes:
+     - ./src:/home/app/code/src
+     - ./tests:/home/app/code/tests
+     - ./doc:/home/app/code/doc
+     - ./Makefile:/home/app/code/Makefile
+     - ./index.js:/home/app/code/index.js
+     - ./config.js:/home/app/code/config.js
+     - ./package.json:/home/app/code/package.json
+    ports:
+     - "8000:8000"
+    depends_on:
+     - couch
+     - redis
+    environment:
+     - "API_SECRET=1234"
+     - "REDIS_AUTH_PORT_6379_TCP_ADDR=redis"
+     - "COUCH_GAMES_PORT_5984_TCP_ADDR=couch"
+     - "NOTIFICATIONS_PORT_8080_TCP_ADDR=notifications"
+     - "NOTIFICATIONS_PORT_8080_TCP_PORT=8000"
+     - "GAME_SERVERS_URL=http://turngame:8000"
+
+  notifications:
+    image: ganomede/notifications:v1.7.5
+    links:
+     - redis:redis
+    environment:
+     - "REDIS_AUTH_PORT_6379_TCP_ADDR=redis"
+     - "REDIS_NOTIFICATIONS_PORT_6379_TCP_ADDR=redis"
+     - "REDIS_ONLINELIST_PORT_6379_TCP_ADDR=redis"
+     - "REDIS_PUSHAPI_PORT_6379_TCP_ADDR=redis"
+     - "API_SECRET=1234"
+
+  couch:
+    image: klaemo/couchdb:1.6.1
+
+  redis:
+    image: redis:alpine

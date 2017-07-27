@@ -6,9 +6,9 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "./node_modules/.bin/forever start index.js",
-    "stop": "./node_modules/.bin/forever stop index.js",
-    "test": "./run_tests.sh"
+    "start": "forever start index.js",
+    "stop": "forever stop index.js",
+    "test": "mocha -b --recursive --compilers coffee:coffee-script/register tests"
   },
   "author": "Jean-Christophe Hoelt <hoelt@fovea.cc>",
   "license": "Private",
