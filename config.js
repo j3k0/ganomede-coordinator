@@ -7,8 +7,16 @@ var gameServers = function() {
 }
 
 module.exports = {
+
+  // legacy config
   port: +process.env.PORT || 8000,
   routePrefix: process.env.ROUTE_PREFIX || pkg.api,
+
+  // unified config
+  http: {
+    port: +process.env.PORT || 8000,
+    prefix: process.env.ROUTE_PREFIX || pkg.api,
+  },
 
   couch: {
     serverUri: url.format({
