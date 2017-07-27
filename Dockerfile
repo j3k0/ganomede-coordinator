@@ -8,7 +8,7 @@ RUN useradd app -d /home/app
 
 # Install NPM packages
 COPY package.json /home/app/code/package.json
-RUN cd /home/app/code && npm install --production
+RUN cd /home/app/code && npm install
 
 # Copy app source files
 COPY .eslintrc .eslintignore coffeelint.json Makefile index.js config.js newrelic.js run_tests.sh /home/app/code/
