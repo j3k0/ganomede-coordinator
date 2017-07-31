@@ -65,10 +65,10 @@ module.exports = {
     server.on('after', sendAuditStats);
 
     // Init object to dump our stuff into.
-    server.use(function secretMatcher(req, res, next) {
-      req.ganomede = {
-        secretMatches: matchSecret(req, 'body') || matchSecret(req, 'query')
-      };
+    // server.use(function secretMatcher(req, res, next) {
+    //   req.ganomede = {
+    //     secretMatches: matchSecret(req, 'body') || matchSecret(req, 'query')
+    //   };
 
       next();
     });
