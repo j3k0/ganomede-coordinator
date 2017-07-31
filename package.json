@@ -1,6 +1,6 @@
 {
   "name": "coordinator",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "api": "coordinator/v1",
   "description": "coordinator micro service",
   "private": true,
