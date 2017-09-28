@@ -8,7 +8,9 @@
   "scripts": {
     "start": "forever start index.js",
     "stop": "forever stop index.js",
-    "test": "mocha -b --recursive --compilers coffee:coffee-script/register tests"
+    "test": "mocha -b --recursive --compilers coffee:coffee-script/register tests",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "author": "Jean-Christophe Hoelt <hoelt@fovea.cc>",
   "license": "Private",
@@ -29,7 +31,8 @@
     "newrelic": "^1.20.2",
     "node-statsd": "^0.1.1",
     "restify": "^4.1.1",
-    "vasync": "^1.6.2"
+    "vasync": "^1.6.2",
+    "snyk": "^1.41.1"
   },
   "config": {
     "blanket": {
@@ -48,5 +51,6 @@
     "pouchdb-server": "^0.6.5",
     "sinon": "^1.16.1",
     "supertest": "^0.15.0"
-  }
+  },
+  "snyk": true
 }
