@@ -69,9 +69,9 @@ module.exports = {
     //   req.ganomede = {
     //     secretMatches: matchSecret(req, 'body') || matchSecret(req, 'query')
     //   };
-
-      next();
-    });
+    //
+    //  next();
+    // });
 
     return server;
   }
