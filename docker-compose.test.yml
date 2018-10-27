@@ -34,8 +34,8 @@ services:
      - ./index.js:/home/app/code/index.js
      - ./config.js:/home/app/code/config.js
      - ./package.json:/home/app/code/package.json
-    ports:
-     - "8000:8000"
+    # ports:
+    # - "8000:8000"
     depends_on:
      - couch
      - redis
