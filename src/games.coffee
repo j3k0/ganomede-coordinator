@@ -31,7 +31,7 @@ class Module
     else
       options.since = since
     @db.pollChanges options, (err, polldata) =>
-      if err || polldata.results.length == 0
+      if err || polldata?.results?.length == 0
       then callback err, polldata
       else
         ids = polldata.results
