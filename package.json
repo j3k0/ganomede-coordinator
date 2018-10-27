@@ -15,20 +15,20 @@
   "dependencies": {
     "authdb": "^0.3.0",
     "blanket": "^1.1.6",
-    "bunyan": "^1.2.3",
+    "bunyan": "^1.8.12",
     "coffee-script": "^1.8.0",
-    "coffeelint": "^1.6.1",
-    "concat-stream": "^1.4.7",
+    "coffeelint": "^1.16.2",
+    "concat-stream": "^1.6.2",
     "eslint": "^1.9.0",
     "forever": "^0.15.3",
     "ganomede-helpers": "^1.0.1",
-    "jshint": "^2.5.10",
+    "jshint": "^2.9.6",
     "lodash": "^3.10.1",
-    "mocha": "^3.0.0",
-    "nano": "^6.1.2",
+    "mocha": "^3.5.3",
+    "nano": "^6.4.4",
     "newrelic": "^1.20.2",
     "node-statsd": "^0.1.1",
-    "restify": "^4.1.1",
+    "restify": "^4.3.4",
     "vasync": "^1.6.2"
   },
   "config": {
@@ -44,8 +44,8 @@
     "expect.js": "^0.3.1",
     "fakeredis": "^1.0.3",
     "istanbul": "https://github.com/duereg/istanbul/archive/master.tar.gz",
-    "memdown": "^1.0.0",
-    "pouchdb-server": "^0.6.5",
+    "memdown": "^1.4.1",
+    "pouchdb-server": "^4.1.0",
     "sinon": "^1.16.1",
     "supertest": "^0.15.0"
   }
