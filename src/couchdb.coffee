@@ -21,7 +21,7 @@ class DB
     if typeof since == "object"
       options = since
       since = options.since
-    if since != -1
+    if since != 0
       options.since = since
     options.feed = "longpoll"
     options.timeout = options.timeout || 29000

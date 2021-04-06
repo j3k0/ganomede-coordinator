@@ -24,7 +24,7 @@ class Module
 
   activeGames: (type, username) -> new ActiveGames(type, username, @db)
 
-  listenGames: (since = -1, callback) ->
+  listenGames: (since = 0, callback) ->
     options = {}
     if typeof since == "object"
       options = since
