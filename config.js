@@ -21,6 +21,7 @@ module.exports = {
   couch: {
     serverUri: url.format({
       protocol: 'http',
+      auth: process.env.COUCH_GAMES_PORT_5984_TCP_AUTH || undefined,
       hostname: process.env.COUCH_GAMES_PORT_5984_TCP_ADDR || 'localhost',
       port: +process.env.COUCH_GAMES_PORT_5984_TCP_PORT || 5984
     }),
