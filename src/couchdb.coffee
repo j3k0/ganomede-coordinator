@@ -82,6 +82,8 @@ class DB
       qs[k] = v
     if qs.limit == undefined
       qs.limit = DEFAULT_LIMIT
+    # Limit must not exceed 268435456
+    qs.limit = Math.min(268435456, qs.limit)
   
     @db.view design, view, qs, (err, result, headers) =>
       if (err)
