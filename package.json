@@ -45,7 +45,7 @@
     "fakeredis": "^1.0.3",
     "istanbul": "https://github.com/duereg/istanbul/archive/master.tar.gz",
     "memdown": "^1.4.1",
-    "pouchdb-server": "^4.1.0",
+    "pouchdb-server": "^4.2.0",
     "sinon": "^1.16.1",
     "supertest": "^0.15.0"
   }
