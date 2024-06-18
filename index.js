@@ -31,8 +31,13 @@ else {
     var main = require("./src/main");
     var server = require('./src/server').createServer();
 
-    // Intitialize backend, add routes
-    main.initialize();
+    // Initialize backend, add routes
+    main.initialize(function () {
+        // Start the server only once all modules are initialized
+        server.listen(config.port, function() {
+            log.info(server.name + " listening at " + server.url);
+        });
+    });
     main.addRoutes(config.routePrefix, server);
 
     // Handle uncaughtException, kill the worker
@@ -66,10 +71,5 @@ else {
             log.error("Error sending 500!");
             log.error(err2);
         }
-    });
-
-    // Start the server
-    server.listen(config.port, function() {
-        log.info(server.name + " listening at " + server.url);
     });
 }
