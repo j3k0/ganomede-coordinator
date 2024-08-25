@@ -208,7 +208,7 @@ Inactive games will have an expiry date of 1 month.
             "status": "gameover",
             "gameOverData": { ... }
         }],
-        "last_seq":39
+        "last_seq": "39-0xdead4bad"
     }
 
  * `seq`: The update sequence number.
